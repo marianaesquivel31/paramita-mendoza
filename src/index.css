@@ -1,0 +1,21 @@
+/* Animaciones suaves para Paramita */
+@keyframes fadeInSlide {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.animate-in {
+  animation: fadeInSlide 0.6s ease-out forwards;
+}
+
+/* Mejora la fuente para que se vea espiritual y calma */
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
