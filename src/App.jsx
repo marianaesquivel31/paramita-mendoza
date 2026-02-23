@@ -7,14 +7,9 @@ import {
 // LOGO DE PARAMITA (Reconstruido)
 const ParamitaLogo = () => (
   <div className="flex flex-col items-center scale-[0.35] origin-left -my-10">
-    <svg viewBox="0 0 400 350" className="w-24 h-24" fill="none">
-      <circle cx="200" cy="50" r="32" fill="#00D1FF" />
-      <path d="M200 80C170 120 160 180 160 220C185 205 215 205 240 220C240 180 230 120 200 80Z" fill="#00D1FF" />
-      <path d="M155 105C125 145 110 200 130 240C155 225 180 215 200 215C180 170 175 125 175 125L155 105Z" fill="#009EE0" />
-      <path d="M245 105C275 145 290 200 270 240C245 225 220 215 200 215C220 170 225 125 225 125L245 105Z" fill="#009EE0" />
-      <path d="M85 175C45 210 40 255 90 275C130 255 170 245 200 245C160 210 145 175 145 175L85 175Z" fill="#0059B2" />
-      <path d="M315 175C355 210 360 255 310 275C270 255 230 245 200 245C240 210 255 175 255 175L315 175Z" fill="#0059B2" />
-    </svg>
+   const ParamitaLogo = () => (
+  <img src="/logo.png" alt="Logo Paramita Mendoza" className="h-16 w-auto" />
+);
     <div className="text-center mt-[-8px]">
       <h1 className="text-[2.2rem] font-bold text-[#0059B2] leading-none">Paramita</h1>
       <h2 className="text-[1.8rem] font-bold text-[#009EE0] leading-none">Mendoza</h2>
