@@ -3,17 +3,20 @@ import React, { useState, useEffect } from 'react';
 function App() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [pagoInfo, setPagoInfo] = useState({ nivel: '', monto: '', descripcion: '' });
-  
-  // Datos para el contador y termómetro
+  const [progreso, setProgreso] = useState(0);
+
   const KMS = 4200;
   const TOTAL = 20000;
-  const DIAS = 45; // Puedes ajustar este valor
+  const DIAS = 45;
   const PCT = (KMS / TOTAL * 100).toFixed(1);
 
-  // Lógica para abrir las preguntas frecuentes (FAQ)
+  useEffect(() => {
+    const timer = setTimeout(() => setProgreso(PCT), 500);
+    return () => clearTimeout(timer);
+  }, [PCT]);
+
   const toggleFaq = (e) => {
-    const item = e.currentTarget.parentElement;
-    item.classList.toggle('open');
+    e.currentTarget.parentElement.classList.toggle('open');
   };
 
   const abrirPago = (nivel, monto, desc) => {
@@ -22,177 +25,153 @@ function App() {
   };
 
   return (
-    <div style={{ color: '#2C3E3E' }}>
+    <div style={{ color: '#2C3E3E', backgroundColor: '#FFFFFF' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap');
         
         :root {
           --teal: #4BA8A2; --teal-dark: #3A8A85; --teal-light: #7FC4BF;
           --teal-pale: #E6F5F4; --teal-bg: #F0FAF9; --blue: #3B6FA0;
-          --blue-light: #6B9FC8; --blue-pale: #EAF2FA; --white: #FFFFFF;
-          --border: #D4E8E7; --text: #2C3E3E; --text-mid: #4A6060;
+          --blue-pale: #EAF2FA; --border: #D4E8E7; --text-mid: #4A6060;
           --accent-orange: #F4A340;
         }
 
-        body { font-family: 'Lato', sans-serif; margin: 0; overflow-x: hidden; }
-        h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 500; }
-        p { line-height: 1.8; font-weight: 300; }
-
-        /* NAV */
-        nav {
-          position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-          padding: 1rem 3rem; background: rgba(255,255,255,0.97);
-          backdrop-filter: blur(8px); border-bottom: 1px solid var(--border);
-          display: flex; align-items: center; justify-content: space-between;
+        body { font-family: 'Lato', sans-serif; margin: 0; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        
+        .nav-cta { background: var(--teal); color: white; padding: 0.6rem 1.5rem; border-radius: 3px; font-weight: 700; text-transform: uppercase; border: none; cursor: pointer; font-size: 0.8rem; }
+        
+        /* VIDEO PLAYER ESTILO DISEÑO */
+        .hero-video-wrap {
+          max-width: 620px; margin: 0 auto 3rem; aspect-ratio: 16/9;
+          background: linear-gradient(135deg, var(--teal-pale) 0%, var(--blue-pale) 100%);
+          border: 2px solid var(--border); border-radius: 8px;
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          gap: 1rem; cursor: pointer; transition: 0.3s;
         }
-
-        /* BOTONES */
-        .btn-teal {
-          display: inline-block; background: var(--teal); color: white;
-          padding: 0.9rem 2.4rem; border-radius: 3px; font-weight: 700;
-          text-transform: uppercase; text-decoration: none; cursor: pointer; border: none;
+        .play-btn {
+          width: 68px; height: 68px; border-radius: 50%; background: var(--teal);
+          display: flex; align-items: center; justify-content: center;
+          box-shadow: 0 6px 24px rgba(75,168,162,0.3);
         }
-        .btn-accent {
-          background: var(--accent-orange); color: white; padding: 1rem 2rem;
-          border-radius: 4px; font-weight: 700; text-transform: uppercase; border: none; cursor: pointer;
-        }
+        .play-btn::after { content: ''; border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 18px solid white; margin-left: 5px; }
 
-        /* HERO */
-        .hero {
-          min-height: 100vh; background: linear-gradient(160deg, var(--teal-bg) 0%, var(--blue-pale) 55%, var(--white) 100%);
-          display: flex; align-items: center; justify-content: center; text-align: center; padding: 8rem 2rem 5rem;
-        }
-
-        /* THERMO */
-        .thermo-wrap { background: white; border-top: 1px solid var(--border); padding: 3.5rem 2rem; text-align: center; }
-        .thermo-track { max-width: 560px; margin: 1.6rem auto; height: 10px; background: var(--teal-pale); border-radius: 999px; overflow: hidden; }
-        .thermo-fill { height: 100%; background: linear-gradient(90deg, var(--teal-light), var(--teal)); transition: width 2s ease-out; }
-
-        /* MAPA */
-        .map-section { background: var(--teal-bg); padding: 3rem 2rem; text-align: center; border-bottom: 1px solid var(--border); }
-        .map-journey { display: flex; align-items: center; justify-content: center; gap: 1.5rem; max-width: 580px; margin: 1.5rem auto 0; }
-        .map-line { flex: 1; height: 2px; background: linear-gradient(90deg, var(--teal-light), var(--blue-light)); position: relative; }
-
-        /* CARDS */
-        .cards-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
-        .card-info { background: #F8FCFC; border: 1px solid var(--border); border-top: 4px solid var(--teal); padding: 2rem; border-radius: 6px; }
-
+        /* CARDS RESUMEN */
+        .cards-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+        .card-info { background: #F8FCFC; border: 1px solid var(--border); border-top: 4px solid var(--teal); padding: 2.5rem 1.8rem; border-radius: 0 0 6px 6px; text-align: left; }
+        
         /* FAQ */
-        .faq-item { border-bottom: 1px solid var(--border); text-align: left; }
-        .faq-q { font-family: 'Playfair Display', serif; padding: 1.4rem 0; cursor: pointer; display: flex; justify-content: space-between; }
-        .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; color: var(--text-mid); }
-        .faq-item.open .faq-a { max-height: 200px; padding-bottom: 1rem; }
+        .faq-item { border-bottom: 1px solid var(--border); }
+        .faq-q { padding: 1.5rem 0; cursor: pointer; display: flex; justify-content: space-between; font-family: 'Playfair Display'; font-size: 1.1rem; }
+        .faq-a { max-height: 0; overflow: hidden; transition: 0.4s; color: var(--text-mid); line-height: 1.7; }
+        .faq-item.open .faq-a { max-height: 200px; padding-bottom: 1.5rem; }
 
-        @media(max-width: 768px) { nav { padding: 1rem; } }
+        .btn-accent { background: var(--accent-orange); color: white; padding: 1rem 2.5rem; border-radius: 4px; border: none; font-weight: 700; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 15px rgba(244,163,64,0.3); }
       `}</style>
 
       {/* NAV */}
-      <nav>
-        <span style={{ fontFamily: 'Playfair Display', color: 'var(--teal-dark)', fontWeight: '700' }}>Centro Paramita Mendoza</span>
-        <button onClick={() => document.getElementById('donaciones').scrollIntoView({behavior:'smooth'})} className="btn-teal" style={{padding: '0.5rem 1rem', fontSize: '0.8rem'}}>Sumar kilómetros →</button>
+      <nav style={{ position: 'fixed', top: 0, width: '100%', padding: '1rem 3rem', background: 'rgba(255,255,255,0.95)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 1000 }}>
+        <span style={{ fontFamily: 'Playfair Display', fontWeight: '700', color: 'var(--teal-dark)' }}>Centro Paramita Mendoza</span>
+        <button onClick={() => document.getElementById('donaciones').scrollIntoView({behavior:'smooth'})} className="nav-cta">Sumar kilómetros →</button>
       </nav>
 
       {/* HERO */}
-      <section className="hero">
-        <div style={{ maxWidth: '820px' }}>
-          <span style={{ color: 'var(--teal)', fontWeight: '700', letterSpacing: '0.2em', textTransform: 'uppercase', fontSize: '0.8rem' }}>🪷 Campaña de recaudación · 2025</span>
-          <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 3.5rem)', margin: '1.5rem 0' }}>De los <span style={{color: 'var(--teal)', fontStyle: 'italic'}}>Himalayas</span> a los Andes</h1>
-          <p style={{ color: 'var(--text-mid)', fontSize: '1.2rem', marginBottom: '2.5rem' }}>El camino de la estatua del Buddha Shakyamuni desde Nepal hacia Mendoza. Juntos abriremos las puertas del Centro Paramita Mendoza.</p>
+      <section style={{ minHeight: '100vh', background: 'linear-gradient(160deg, var(--teal-bg) 0%, var(--blue-pale) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '8rem 1rem 4rem' }}>
+        <div style={{ maxWidth: '850px' }}>
+          <span style={{ color: 'var(--teal)', fontWeight: '700', letterSpacing: '0.2em', textTransform: 'uppercase', fontSize: '0.75rem' }}>🪷 Campaña de recaudación · 2025</span>
+          <h1 style={{ fontSize: 'clamp(2.2rem, 5vw, 4rem)', margin: '1.5rem 0', fontWeight: '500' }}>De los <span style={{color: 'var(--teal)', fontStyle: 'italic'}}>Himalayas</span> a los Andes</h1>
+          <p style={{ fontSize: '1.15rem', color: 'var(--text-mid)', marginBottom: '3rem', maxWidth: '700px', margin: '0 auto 3rem' }}>El camino de la estatua del Buddha Shakyamuni desde Nepal hacia Mendoza. Juntos abriremos las puertas de nuestro centro.</p>
+          
+          {/* VIDEO PLACEHOLDER */}
+          <div className="hero-video-wrap">
+            <div className="play-btn"></div>
+            <span style={{ fontSize: '0.8rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-mid)' }}>Ver video: Visión del Ven. Khenpo Rinchen</span>
+          </div>
+
           <button onClick={() => document.getElementById('donaciones').scrollIntoView({behavior:'smooth'})} className="btn-accent">Suma tus kilómetros al proyecto →</button>
         </div>
       </section>
 
       {/* TERMÓMETRO */}
-      <div className="thermo-wrap">
-        <p style={{ textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.2em', color: 'var(--teal)' }}>Kilómetros del viaje recorridos</p>
-        <div style={{ fontFamily: 'Playfair Display', fontSize: '4rem', color: 'var(--teal-dark)' }}>{KMS.toLocaleString('es-AR')} <sub style={{fontSize: '1rem'}}>km</sub></div>
-        <div className="thermo-track">
-          <div className="thermo-fill" style={{ width: `${PCT}%` }}></div>
+      <div style={{ background: 'white', padding: '4rem 1rem', textAlign: 'center', borderTop: '1px solid var(--border)' }}>
+        <p style={{ textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.2em', color: 'var(--teal)', marginBottom: '1rem' }}>Kilómetros del viaje recorridos</p>
+        <div style={{ fontFamily: 'Playfair Display', fontSize: '4.5rem', color: 'var(--teal-dark)', lineHeight: '1' }}>{KMS.toLocaleString('es-AR')} <sub style={{fontSize: '1rem', bottom: '0'}}>km</sub></div>
+        <div style={{ maxWidth: '560px', height: '10px', background: 'var(--teal-pale)', borderRadius: '10px', margin: '1.5rem auto', overflow: 'hidden' }}>
+          <div style={{ width: `${progreso}%`, height: '100%', background: 'linear-gradient(90deg, var(--teal-light), var(--teal))', transition: 'width 2s ease-out' }}></div>
         </div>
-        <p style={{ color: 'var(--text-light)' }}><strong>{PCT}%</strong> completado · Recaudados de 20.000 km totales</p>
+        <p style={{ color: 'var(--text-mid)' }}><strong>{PCT}%</strong> recaudado de 20.000 km totales | <strong>{DIAS}</strong> días restantes</p>
       </div>
 
-      {/* MAPA */}
-      <div className="map-section">
-        <div className="map-journey">
-          <div style={{textAlign: 'center'}}><strong>Nepal</strong></div>
-          <div className="map-line"></div>
-          <div style={{textAlign: 'center'}}><strong>Mendoza</strong></div>
-        </div>
-      </div>
-
-      {/* RESUMEN */}
-      <section style={{ padding: '5rem 2rem', maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
-        <h2 style={{ fontSize: '2.5rem' }}>El sueño que construiremos juntos</h2>
+      {/* SECCIÓN 1: RESUMEN (INFO CPM) */}
+      <section style={{ padding: '6rem 1rem', maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
+        <span style={{ color: 'var(--teal)', fontWeight: '700', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Sobre el proyecto</span>
+        <h2 style={{ fontSize: '2.5rem', marginTop: '1rem' }}>"El sueño que construiremos juntos"</h2>
+        
         <div className="cards-3">
           <div className="card-info">
+            <div style={{fontSize: '2rem', marginBottom: '1rem'}}>🏡</div>
             <h3>¿Qué es el CPM?</h3>
-            <p>Un espacio físico para la práctica regular, retiros y encuentros de la Sangha.</p>
+            <p>Es nuestro punto de encuentro físico, un lugar para la práctica regular, retiros y eventos especiales que busca una integración más profunda de la Sangha.</p>
           </div>
           <div className="card-info">
+            <div style={{fontSize: '2rem', marginBottom: '1rem'}}>📍</div>
             <h3>¿Dónde está?</h3>
-            <p>En Luján de Cuyo, Mendoza. Una casa con jardín ideal para nuestra vida espiritual.</p>
+            <p>En <strong>Luján de Cuyo, Mendoza</strong>. Una hermosa casa con jardín ideal para nuestras prácticas, en un entorno propicio para la vida espiritual.</p>
           </div>
           <div className="card-info">
-            <h3>Acceso</h3>
-            <p>Un oasis para cualquier persona interesada en la meditación y el estudio filosófico.</p>
+            <div style={{fontSize: '2rem', marginBottom: '1rem'}}>🤝</div>
+            <h3>¿Quiénes acceden?</h3>
+            <p>Un oasis donde cualquier persona interesada en la meditación, el estudio filosófico y la práctica espiritual puede encontrar calma y claridad.</p>
           </div>
         </div>
       </section>
 
-      {/* NIVELES DE DONACIÓN */}
-      <section id="donaciones" style={{ padding: '5rem 2rem', backgroundColor: 'var(--teal-bg)', textAlign: 'center' }}>
-        <h2 style={{ fontSize: '2.5rem', marginBottom: '3rem' }}>"Kilómetros de Generosidad"</h2>
-        <div className="cards-3" style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <div className="card-info" style={{background: 'white'}}>
-            <h3 style={{fontFamily: 'Playfair Display'}}>Compasión</h3>
-            <p style={{color: 'var(--teal)', fontWeight: 'bold'}}>5 a 100 km</p>
-            <p style={{fontSize: '0.8rem', margin: '1rem 0'}}>AR$ 5.000 - $100.000</p>
-            <button onClick={() => abrirPago('Compasión', 'AR$ 5.000+', 'Kilómetros de Compasión')} className="btn-accent">Elegir</button>
-          </div>
-          <div className="card-info" style={{background: 'white', border: '2px solid var(--teal)' }}>
-            <h3 style={{fontFamily: 'Playfair Display'}}>Mérito</h3>
-            <p style={{color: 'var(--teal)', fontWeight: 'bold'}}>101 a 500 km</p>
-            <p style={{fontSize: '0.8rem', margin: '1rem 0'}}>AR$ 101.000 - $500.000</p>
-            <button onClick={() => abrirPago('Mérito', 'AR$ 101.000+', 'Kilómetros de Mérito')} className="btn-accent">Elegir</button>
-          </div>
-          <div className="card-info" style={{background: 'white'}}>
-            <h3 style={{fontFamily: 'Playfair Display'}}>Sabiduría</h3>
-            <p style={{color: 'var(--teal)', fontWeight: 'bold'}}>501 a 5.000 km</p>
-            <p style={{fontSize: '0.8rem', margin: '1rem 0'}}>AR$ 501.000+</p>
-            <button onClick={() => abrirPago('Sabiduría', 'AR$ 501.000+', 'Kilómetros de Sabiduría')} className="btn-accent">Elegir</button>
-          </div>
+      {/* DONACIONES */}
+      <section id="donaciones" style={{ padding: '6rem 1rem', background: 'var(--teal-bg)', textAlign: 'center' }}>
+        <h2 style={{ fontFamily: 'Playfair Display', fontSize: '2.5rem' }}>Kilómetros de Generosidad</h2>
+        <p style={{ marginBottom: '4rem', color: 'var(--text-mid)' }}>Cada kilómetro equivale a AR$ 1.000</p>
+        <div className="cards-3" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+          {['Compasión', 'Mérito', 'Sabiduría'].map((nivel, i) => (
+            <div key={nivel} className="card-info" style={{ background: 'white', textAlign: 'center', borderTopColor: i === 1 ? 'var(--accent-orange)' : 'var(--teal)' }}>
+              <h3 style={{fontSize: '1.5rem'}}>{nivel}</h3>
+              <p style={{ color: 'var(--teal)', fontWeight: 'bold', margin: '1rem 0', fontSize: '1.2rem' }}>
+                {i === 0 ? '5 a 100 km' : i === 1 ? '101 a 500 km' : '501 a 5.000 km'}
+              </p>
+              <button onClick={() => abrirPago(nivel, 'Consultar Rango', `Kilómetros de ${nivel}`)} className="btn-accent" style={{width: '100%', padding: '0.8rem'}}>Donar ahora</button>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* FAQ */}
-      <section style={{ padding: '5rem 2rem', maxWidth: '700px', margin: '0 auto' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Preguntas Frecuentes</h2>
-        <div className="faq-item">
-          <div className="faq-q" onClick={toggleFaq}>¿El dinero pasa por la Fundación? <span>+</span></div>
-          <div className="faq-a">Sí, la campaña está bajo el dominio de la Fundación Paramita Argentina para total transparencia.</div>
-        </div>
-        <div className="faq-item">
-          <div className="faq-q" onClick={toggleFaq}>¿Puedo donar en especies? <span>+</span></div>
-          <div className="faq-a">Sí, existe una campaña local en Mendoza para insumos y equipamiento de la casa.</div>
-        </div>
+      <section style={{ padding: '6rem 1rem', maxWidth: '800px', margin: '0 auto' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '3rem' }}>Preguntas Frecuentes</h2>
+        {[
+          { q: "¿El dinero pasa por la Fundación?", a: "Sí, la campaña nacional está alojada en el dominio de la Fundación Paramita Argentina para otorgar total transparencia." },
+          { q: "¿Hay otras formas de apoyar?", a: "¡Sí! Puedes involucrarte en el voluntariado con Marta (cocina, jardín, limpieza) o comprar las remeras oficiales." }
+        ].map((item, i) => (
+          <div key={i} className="faq-item">
+            <div className="faq-q" onClick={toggleFaq}>{item.q} <span>+</span></div>
+            <div className="faq-a">{item.a}</div>
+          </div>
+        ))}
       </section>
 
-      {/* CIERRE */}
-      <footer style={{ background: 'var(--text)', color: 'white', padding: '4rem 2rem', textAlign: 'center' }}>
-        <h2 style={{ color: 'var(--teal-light)', marginBottom: '1rem' }}>Centro Paramita Mendoza</h2>
-        <p style={{ opacity: 0.6 }}>Fundación Paramita Argentina · Luján de Cuyo</p>
-        <p style={{ marginTop: '2rem' }}>🪷 Que la Rueda del Dharma siga girando 🪷</p>
+      {/* FOOTER */}
+      <footer style={{ background: '#2C3E3E', color: 'white', padding: '5rem 1rem', textAlign: 'center' }}>
+        <h2 style={{ color: 'var(--teal-light)', fontFamily: 'Playfair Display' }}>Centro Paramita Mendoza</h2>
+        <p style={{ opacity: 0.5, marginTop: '1rem' }}>Luján de Cuyo, Mendoza · Fundación Paramita Argentina</p>
+        <p style={{ marginTop: '2rem', fontSize: '1.2rem' }}>🪷</p>
       </footer>
 
-      {/* MODAL DE PAGO */}
+      {/* CHECKOUT MODAL */}
       {showCheckout && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
-          <div style={{ background: 'white', padding: '2.5rem', borderRadius: '12px', maxWidth: '400px', width: '90%', textAlign: 'center' }}>
-            <h3 style={{ fontFamily: 'Playfair Display' }}>{pagoInfo.descripcion}</h3>
-            <p style={{ margin: '1rem 0', color: '#7A9898' }}>Rango: {pagoInfo.monto}</p>
-            <button onClick={() => { alert('Redirigiendo a Mercado Pago...'); setShowCheckout(false); }} className="btn-teal" style={{width: '100%', border: 'none'}}>PAGAR AHORA</button>
-            <button onClick={() => setShowCheckout(false)} style={{ background: 'none', border: 'none', marginTop: '1.5rem', color: 'var(--teal)', textDecoration: 'underline', cursor: 'pointer' }}>Volver atrás</button>
+          <div style={{ background: 'white', padding: '3rem', borderRadius: '8px', maxWidth: '400px', width: '90%', textAlign: 'center' }}>
+            <h3 style={{ fontFamily: 'Playfair Display', fontSize: '1.8rem' }}>{pagoInfo.descripcion}</h3>
+            <p style={{ margin: '1.5rem 0', color: 'var(--text-mid)' }}>Estás por sumar kilómetros al proyecto Mendoza.</p>
+            <button onClick={() => { alert('Redirigiendo...'); setShowCheckout(false); }} className="btn-accent" style={{width: '100%'}}>IR A PAGAR</button>
+            <button onClick={() => setShowCheckout(false)} style={{ background: 'none', border: 'none', marginTop: '1.5rem', color: 'var(--teal)', textDecoration: 'underline', cursor: 'pointer' }}>Volver</button>
           </div>
         </div>
       )}
